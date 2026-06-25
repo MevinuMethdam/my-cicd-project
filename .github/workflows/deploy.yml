@@ -28,13 +28,29 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
     steps:
-      - name: Pull Latest Image from Docker Hub
+      - name: Pull Latest Image
         run: docker pull mevinumethdam/gateease-api:latest
 
-      - name: Run New Container (Pre-Nginx Setup)
+      - name: Blue-Green Zero Downtime Deployment
         run: |
-          docker stop gateease-api || true
-          docker rm gateease-api || true
-          docker run -d --name gateease-api -p 3000:3000 mevinumethdam/gateease-api:latest
+          ACTIVE_PORT=$(grep -oP 'server 127.0.0.1:\K\d+' /etc/nginx/sites-available/default)
           
-          # Trigger pipeline (My 3rd try)
+          if [ "$ACTIVE_PORT" = "3000" ]; then
+              NEW_PORT=3001
+          else
+              NEW_PORT=3000
+          fi
+          
+          echo "Active Port: $ACTIVE_PORT | Deploying to New Port: $NEW_PORT"
+
+          docker rm -f gateease-api-$NEW_PORT || true
+          docker run -d --name gateease-api-$NEW_PORT -p $NEW_PORT:3000 mevinumethdam/gateease-api:latest
+
+          sleep 10
+
+          sudo sed -i "s/server 127.0.0.1:$ACTIVE_PORT/server 127.0.0.1:$NEW_PORT/" /etc/nginx/sites-available/default
+          sudo systemctl reload nginx
+
+          docker rm -f gateease-api-$ACTIVE_PORT || true
+          docker rm -f gateease-api || true
+          # Trigger pipeline (My 4th try)

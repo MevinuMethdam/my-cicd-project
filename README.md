@@ -27,7 +27,7 @@ This repository demonstrates a production-grade CI/CD pipeline built for the **G
    * **Cleanup:** The outdated container is safely forcefully removed to free up system resources.
 
 ## 🏗️ Architecture Flow
-1. Developer pushes code to `github.com/IT24102783/my-cicd-project`.
+1. Developer pushes code to `github.com/MevinuMethdam/my-cicd-project`.
 2. GitHub Actions authenticates and builds the Docker image.
 3. The self-hosted runner pulls the latest image directly into the AWS EC2 instance.
 4. Nginx acts as the gatekeeper, seamlessly routing live traffic from the old architecture to the newly deployed version.

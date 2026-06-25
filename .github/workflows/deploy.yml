@@ -14,7 +14,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: mevinumethdam
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
@@ -22,19 +22,19 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/gateease-api:latest
+          tags: mevinumethdam/gateease-api:latest
 
   deploy:
     needs: build-and-push
     runs-on: self-hosted
     steps:
       - name: Pull Latest Image from Docker Hub
-        run: docker pull ${{ secrets.DOCKER_USERNAME }}/gateease-api:latest
+        run: docker pull mevinumethdam/gateease-api:latest
 
       - name: Run New Container (Pre-Nginx Setup)
         run: |
           docker stop gateease-api || true
           docker rm gateease-api || true
-          docker run -d --name gateease-api -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/gateease-api:latest
+          docker run -d --name gateease-api -p 3000:3000 mevinumethdam/gateease-api:latest
           
-          # Trigger pipeline (My 2nd try)
+          # Trigger pipeline (My 3rd try)
